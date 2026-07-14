@@ -29,6 +29,25 @@ def legal_moves(matrix):
     return list(zip(rows.tolist(), cols.tolist()))
 
 
+def check_winner(matrix):
+    """Return (player, how) if someone has won, otherwise None.
+    how is a short description of the winning line.
+    """
+    for i in range(3):
+        if matrix[i, 0] != ' ' and np.all(matrix[i, :] == matrix[i, 0]):
+            return matrix[i, 0], f"row {i}"
+        if matrix[0, i] != ' ' and np.all(matrix[:, i] == matrix[0, i]):
+            return matrix[0, i], f"column {i}"
+
+    if matrix[1, 1] != ' ':
+        if matrix[0, 0] == matrix[1, 1] == matrix[2, 2]:
+            return matrix[1, 1], "main diagonal"
+        if matrix[0, 2] == matrix[1, 1] == matrix[2, 0]:
+            return matrix[1, 1], "anti-diagonal"
+
+    return None
+
+
 # --- SIMPLE GAME LOOP ---
 board = empty_board
 
@@ -49,3 +68,15 @@ while True:
 
     # Apply the move to your matrix
     board = make_move(board, row, col, player)
+
+    result = check_winner(board)
+    if result is not None:
+        winner, how = result
+        print_tic_tac_toe(board)
+        print(f"\nPlayer {winner} wins on the {how}!")
+        break
+
+    if not legal_moves(board):
+        print_tic_tac_toe(board)
+        print("\nIt's a draw — no empty spots left.")
+        break
