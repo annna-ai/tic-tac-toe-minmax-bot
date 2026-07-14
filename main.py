@@ -22,6 +22,13 @@ def current_player(matrix):
     return 'X' if x_count == o_count else 'O'
 
 
+def legal_moves(matrix):
+    # np.where returns (row_indices, col_indices); zip them into (row, col) tuples
+    # so minimax can loop: for row, col in legal_moves(board): ...
+    rows, cols = np.where(matrix == ' ')
+    return list(zip(rows.tolist(), cols.tolist()))
+
+
 # --- SIMPLE GAME LOOP ---
 board = empty_board
 
