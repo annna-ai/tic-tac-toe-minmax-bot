@@ -110,36 +110,37 @@ def best_move(board, ai_symbol):
 
 
 # --- GAME LOOP: you are X, the minimax bot is O ---
-AI_SYMBOL = 'O'
-board = empty_board.copy()
+if __name__ == "__main__":
+    AI_SYMBOL = 'O'
+    board = empty_board.copy()
 
-print("Game started! You are X, the bot is O.")
-print("Enter coordinates from 0 to 2 (e.g., 1 1 for center)")
+    print("Game started! You are X, the bot is O.")
+    print("Enter coordinates from 0 to 2 (e.g., 1 1 for center)")
 
-while True:
-    print_tic_tac_toe(board)
-    player = current_player(board)
-
-    if player == AI_SYMBOL:
-        row, col = best_move(board, AI_SYMBOL)
-        print(f"\nBot plays at {row} {col}")
-    else:
-        move = input(f"\nPlayer {player}, enter row and col (e.g., 0 2): ").split()
-        row, col = int(move[0]), int(move[1])
-        if board[row, col] != ' ':
-            print("Spot taken! Try a different move.")
-            continue
-
-    board = make_move(board, row, col, player)
-
-    result = check_winner(board)
-    if result is not None:
-        winner, how = result
+    while True:
         print_tic_tac_toe(board)
-        print(f"\nPlayer {winner} wins on the {how}!")
-        break
+        player = current_player(board)
 
-    if not legal_moves(board):
-        print_tic_tac_toe(board)
-        print("\nIt's a draw — no empty spots left.")
-        break
+        if player == AI_SYMBOL:
+            row, col = best_move(board, AI_SYMBOL)
+            print(f"\nBot plays at {row} {col}")
+        else:
+            move = input(f"\nPlayer {player}, enter row and col (e.g., 0 2): ").split()
+            row, col = int(move[0]), int(move[1])
+            if board[row, col] != ' ':
+                print("Spot taken! Try a different move.")
+                continue
+
+        board = make_move(board, row, col, player)
+
+        result = check_winner(board)
+        if result is not None:
+            winner, how = result
+            print_tic_tac_toe(board)
+            print(f"\nPlayer {winner} wins on the {how}!")
+            break
+
+        if not legal_moves(board):
+            print_tic_tac_toe(board)
+            print("\nIt's a draw — no empty spots left.")
+            break
