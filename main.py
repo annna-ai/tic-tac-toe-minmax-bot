@@ -48,25 +48,88 @@ def check_winner(matrix):
     return None
 
 
-# --- SIMPLE GAME LOOP ---
-board = empty_board
+def score(board, ai_symbol):
+    """Terminal-position score from the AI's point of view.
+    Returns 2 (AI win), 0 (AI loss), 1 (draw), or None if the game is still ongoing
+    (minimax's recursive case — keep searching).
+    """
+    result = check_winner(board)
+    if result is not None:
+        winner, _ = result
+        return 2 if winner == ai_symbol else 0
 
-print("Game started! Enter coordinates from 0 to 2 (e.g., 1 1 for center)")
+    if not legal_moves(board):
+        return 1
+
+    return None
+
+
+def minimax(board, ai_symbol):
+    """Score this position assuming both sides play optimally.
+
+    On the AI's turn we take the move with the highest score (best case for us).
+    On the opponent's turn we take the move with the lowest score (worst case for us).
+    That way the value of a move is its best guaranteed outcome — the best worst-case.
+    """
+    terminal = score(board, ai_symbol)
+    if terminal is not None:
+        return terminal
+
+    player = current_player(board)
+    moves = legal_moves(board)
+
+    if player == ai_symbol:
+        best = 0  # worst possible score; we try to improve
+        for row, col in moves:
+            next_board = board.copy()
+            make_move(next_board, row, col, player)
+            best = max(best, minimax(next_board, ai_symbol))
+        return best
+
+    # Opponent: pick the move that hurts the AI the most
+    best = 2  # best possible for AI; opponent tries to worsen it
+    for row, col in moves:
+        next_board = board.copy()
+        make_move(next_board, row, col, player)
+        best = min(best, minimax(next_board, ai_symbol))
+    return best
+
+
+def best_move(board, ai_symbol):
+    """Try every legal move and return the (row, col) with the best minimax score."""
+    chosen = None
+    best_score = -1
+    for row, col in legal_moves(board):
+        next_board = board.copy()
+        make_move(next_board, row, col, ai_symbol)
+        move_score = minimax(next_board, ai_symbol)
+        if move_score > best_score:
+            best_score = move_score
+            chosen = (row, col)
+    return chosen
+
+
+# --- GAME LOOP: you are X, the minimax bot is O ---
+AI_SYMBOL = 'O'
+board = empty_board.copy()
+
+print("Game started! You are X, the bot is O.")
+print("Enter coordinates from 0 to 2 (e.g., 1 1 for center)")
 
 while True:
     print_tic_tac_toe(board)
     player = current_player(board)
 
-    # Get user input and split it into row and column integers
-    move = input(f"\nPlayer {player}, enter row and col (e.g., 0 2): ").split()
-    row, col = int(move[0]), int(move[1])
+    if player == AI_SYMBOL:
+        row, col = best_move(board, AI_SYMBOL)
+        print(f"\nBot plays at {row} {col}")
+    else:
+        move = input(f"\nPlayer {player}, enter row and col (e.g., 0 2): ").split()
+        row, col = int(move[0]), int(move[1])
+        if board[row, col] != ' ':
+            print("Spot taken! Try a different move.")
+            continue
 
-    # Check if the spot is already taken
-    if board[row, col] != ' ':
-        print("Spot taken! Try a different move.")
-        continue  # Skips the rest of the loop and asks the same player again
-
-    # Apply the move to your matrix
     board = make_move(board, row, col, player)
 
     result = check_winner(board)
